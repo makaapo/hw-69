@@ -1,18 +1,19 @@
 import { ChangeEvent, useState } from 'react';
-import {Link} from 'react-router-dom';
+import {Link, Outlet} from 'react-router-dom';
 import {fetchTvSeries} from '../../store/tvSeriesThunk';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
+import {selectSeries} from '../../store/tvSeriesSlice';
 
 const FormSeries = () => {
-  const movies = useAppSelector((state) => state.tvSeries.series);
+  const movies = useAppSelector(selectSeries);
   const dispatch = useAppDispatch();
   const [inputValue, setInputValue] = useState('');
 
-  const onFieldChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onFieldChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setInputValue(value);
     if (value.length > 0) {
-      dispatch(fetchTvSeries(value));
+      await dispatch(fetchTvSeries(value));
     }
   };
 
@@ -46,6 +47,7 @@ const FormSeries = () => {
         </div>
       )}
       <hr className="mt-3"/>
+      <Outlet/>
     </div>
   );
 };
