@@ -1,53 +1,58 @@
-import { ChangeEvent, useState } from 'react';
-import {Link, Outlet} from 'react-router-dom';
-import {fetchTvSeries} from '../../store/tvSeriesThunk';
+import {ChangeEvent} from 'react';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import {Outlet, useNavigate} from 'react-router-dom';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
-import {selectSeries} from '../../store/tvSeriesSlice';
+import {fetchTvSeries} from '../../store/tvSeriesThunk';
+import {selectIsLoading, selectSeries} from '../../store/tvSeriesSlice';
+import {TvShow} from '../../types';
 
 const FormSeries = () => {
   const movies = useAppSelector(selectSeries);
+  const isLoading = useAppSelector(selectIsLoading);
   const dispatch = useAppDispatch();
-  const [inputValue, setInputValue] = useState('');
+  const navigate = useNavigate();
 
-  const onFieldChange = async (event: ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setInputValue(value);
-    if (value.length > 0) {
-      await dispatch(fetchTvSeries(value));
+  const onFieldChange = async (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    await dispatch(fetchTvSeries(event.target.value));
+  };
+
+  const selectChange = (value: TvShow | null) => {
+    if (value && value.id) {
+      navigate(`/shows/${value.id}`);
     }
   };
 
   return (
-    <div className="position-relative" style={{width: '300px'}}>
-      <form>
-        <div className="mb-3">
-          <input
-            type="text"
-            value={inputValue}
+    <div>
+      <Autocomplete
+        disablePortal
+        id="combo-box-demo"
+        loading={isLoading}
+        options={movies}
+        getOptionLabel={(option) => option.name}
+        isOptionEqualToValue={(option, value) => option.id === value.id}
+        onChange={(_, value) => selectChange(value)}
+        sx={{width: 300}}
+        renderInput={(params) => (
+          <TextField
+            {...params}
             onChange={onFieldChange}
-            className="form-control"
-            placeholder="Search for TV Show"
+            label="Search for TV show"
           />
-        </div>
-      </form>
-      {movies.length > 0 && (
-        <div
-          className="position-absolute top-100 start-0 w-100 bg-white border border-dark"
-          style={{zIndex: 1000}}
-        >
-          {movies.map((movie) => (
-            <Link
-              key={movie.id}
-              to={`/shows/${movie.id}`}
-              className="d-block p-2 text-decoration-none cursor-pointer"
-            >
-              {movie.name}
-            </Link>
-          ))}
-        </div>
+        )}
+        renderOption={(props, option) => (
+          <li {...props} key={option.id}>
+            {option.name}
+          </li>
+        )}
+      />
+      <hr/>
+      {movies.length > 0 ? (
+        <Outlet/>
+      ) : (
+        <h1 className="text-center">Please search series</h1>
       )}
-      <hr className="mt-3"/>
-      <Outlet/>
     </div>
   );
 };
