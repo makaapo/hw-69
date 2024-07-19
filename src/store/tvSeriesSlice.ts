@@ -47,7 +47,16 @@ const tvSeriesSlice = createSlice({
         state.error = true;
       });
   },
+  selectors: {
+    selectCurrentShow: (state => state.currentShow),
+    selectIsLoading: (state => state.isLoading),
+    selectSeries: (state => state.series)
+  }
 });
 
-export const {} = tvSeriesSlice.actions;
 export const tvSeriesReducer = tvSeriesSlice.reducer;
+export const {
+  selectCurrentShow,
+  selectIsLoading,
+  selectSeries
+} = tvSeriesSlice.selectors;

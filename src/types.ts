@@ -10,7 +10,6 @@ export interface TvShow {
   premiered: string;
 }
 export interface TvShows {
-  score: number;
   show: TvShow;
 }
 

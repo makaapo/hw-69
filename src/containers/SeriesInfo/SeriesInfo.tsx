@@ -3,44 +3,67 @@ import {fetchTvSeriesId} from '../../store/tvSeriesThunk';
 import {useEffect} from 'react';
 import Spinner from '../../components/UI/Spinner';
 import {useAppDispatch, useAppSelector} from '../../app/hooks';
+import {Box, Grid, Paper, Typography} from '@mui/material';
 import {selectCurrentShow, selectIsLoading} from '../../store/tvSeriesSlice';
-
 
 const SeriesInfo = () => {
   const currentShow = useAppSelector(selectCurrentShow);
   const isLoading = useAppSelector(selectIsLoading);
-  const params = useParams();
+  const {id} = useParams();
   const dispatch = useAppDispatch();
 
-  useEffect ( () => {
-    if (params.id) {
-      dispatch(fetchTvSeriesId(params.id));
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchTvSeriesId(id));
     }
-  }, [params.id]);
+  }, [dispatch, id]);
 
   return (
-    <div>
-      {isLoading ? <Spinner/> : <>
-        {currentShow ?
-          <div className="show d-flex">
-            <div className="w-50">
-              {currentShow.image === null ? <p>No image</p> :
-                <img src={currentShow.image.medium} alt={currentShow.name}/>
-              }
-            </div>
-            <div className='w-50'>
-              <h4>{currentShow.name}</h4>
-              {currentShow.genres.length === 0 ? <p>No genres</p> :
-                <p><b>Genres:</b> {currentShow.genres.join(', ')}</p>
-              }
-              <p><b>Language:</b> {currentShow.language}</p>
-              <p><b>Premiered:</b> {currentShow.premiered}</p>
-              <div dangerouslySetInnerHTML={{__html: currentShow.summary}}/>
-            </div>
-          </div>
-          : <p>Not found</p>}
-      </> }
-    </div>
+    <>
+      {isLoading ? (
+        <Spinner/>
+      ) : (
+        <>
+          {currentShow ? (
+            <Paper elevation={3} sx={{padding: 2, marginTop: 2}}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  {currentShow.image ? (
+                    <img src={currentShow.image.medium} alt={currentShow.name}/>
+                  ) : (
+                    <Typography variant="body1">No image</Typography>
+                  )}
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <Typography variant="h4" gutterBottom>
+                    {currentShow.name}
+                  </Typography>
+                  {currentShow.genres.length === 0 ? (
+                    <Typography variant="body1">No genres</Typography>
+                  ) : (
+                    <Typography variant="body1">
+                      <b>Genres:</b> {currentShow.genres.join(', ')}
+                    </Typography>
+                  )}
+                  <Typography variant="body1">
+                    <b>Language:</b> {currentShow.language}
+                  </Typography>
+                  <Typography variant="body1">
+                    <b>Premiered:</b> {currentShow.premiered}
+                  </Typography>
+                  <Box mt={2}>
+                    <b>Summary:</b>
+                    <Typography variant="body1" dangerouslySetInnerHTML={{__html: currentShow.summary}}/>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Paper>
+          ) : (
+            <Typography variant="body1">Not found</Typography>
+          )}
+        </>
+      )}
+    </>
   );
 };
 
